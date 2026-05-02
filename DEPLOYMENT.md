@@ -1,82 +1,84 @@
-# Deployment Guide
+# Raj Marvel - Production Deployment Guide
 
-## 1. Environment Variables Setup
+This guide provides step-by-step instructions for deploying the **Raj Marvel Exterior Designs** platform. The project is structured as a Monorepo, meaning both the backend and frontend exist in the same repository. 
 
-Before deploying, ensure you have the following environment variables ready.
+We will deploy the **Backend on Render** and the **Frontend on Vercel**.
 
-### Backend `.env`
+---
+
+## 🟢 Part 1: Deploying the Backend (Render)
+
+Render is perfect for hosting our Node/Express/MongoDB backend API.
+
+### 1. Create a Web Service
+1. Create an account at [Render.com](https://render.com) and click **New+** > **Web Service**.
+2. Connect your GitHub account and select the `rajmarvel` repository.
+
+### 2. Configure the Service
+Set the following configurations in the Render dashboard:
+- **Name**: `rajmarvel-backend` (or anything you prefer)
+- **Language**: `Node`
+- **Root Directory**: `backend` *(⚠️ VERY IMPORTANT: This tells Render to only look inside the backend folder!)*
+- **Build Command**: `npm install`
+- **Start Command**: `npm start`
+
+### 3. Add Environment Variables
+Scroll down to the **Environment Variables** section and click "Add Environment Variable". Add the following:
+
 ```env
-PORT=5001
-MONGO_URI=mongodb+srv://<username>:<password>@cluster0.nduf7ic.mongodb.net/?appName=Cluster0
-JWT_SECRET=your_super_secret_jwt_key_here
+PORT=5000
 NODE_ENV=production
+MONGO_URI=mongodb+srv://<username>:<password>@cluster0.nduf7ic.mongodb.net/?appName=Cluster0
+JWT_SECRET=your_super_secret_random_string
 
-# Cloudinary (For File Uploads)
+# Cloudinary (Images/PDFs)
 CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_api_key
 CLOUDINARY_API_SECRET=your_api_secret
 
-# Razorpay (For Automated Payments)
+# Razorpay (Payments)
 RAZORPAY_KEY_ID=your_razorpay_key_id
 RAZORPAY_KEY_SECRET=your_razorpay_key_secret
-
-# Email (Nodemailer for Notifications)
-EMAIL_SERVICE=gmail
-EMAIL_USER=your_email@gmail.com
-EMAIL_PASS=your_app_password
 ```
+*(Replace the placeholder values with your actual API keys and database links).*
 
-### Frontend `.env`
-```env
-VITE_API_URL=https://your-backend-url.onrender.com/api
+### 4. Deploy!
+Click **Create Web Service**. Render will now build and deploy your backend. 
+Once it's live, copy the URL they give you (e.g., `https://rajmarvel-backend.onrender.com`). You will need this for the Frontend.
+
+---
+
+## 🔵 Part 2: Deploying the Frontend (Vercel)
+
+Vercel is the absolute best platform for hosting React/Vite web applications.
+
+### 1. Import the Project
+1. Create an account at [Vercel.com](https://vercel.com) and click **Add New** > **Project**.
+2. Connect your GitHub account and Import the `rajmarvel` repository.
+
+### 2. Configure the Project
+Before you click deploy, carefully set these configurations:
+- **Project Name**: `raj-marvel-exterior`
+- **Framework Preset**: `Vite`
+- **Root Directory**: Click "Edit" and select the `frontend` folder! *(⚠️ VERY IMPORTANT!)*
+
+### 3. Add Environment Variables
+Open the "Environment Variables" dropdown and add your Backend URL:
+
+- **Name**: `VITE_API_URL`
+- **Value**: `https://rajmarvel-backend.onrender.com/api` *(Paste the URL from Render here, and make sure it ends with `/api`!)*
+
+### 4. Deploy!
+Click **Deploy**. Vercel will automatically run `npm run build` inside your frontend folder and publish your beautiful website to the internet!
+
+---
+
+## 🛠 Maintenance & Updates
+
+Because this is connected to your GitHub, any time you run these commands on your computer:
+```bash
+git add .
+git commit -m "Updated website text"
+git push
 ```
-
----
-
-## 2. Deploying Backend (Render / Railway)
-
-1. Push your code to a GitHub repository.
-2. Go to **Render.com** (or Railway).
-3. Create a new **Web Service**.
-4. Connect your GitHub repository.
-5. Set the **Build Command** to `npm install`.
-6. Set the **Start Command** to `npm start`.
-7. Add all the Environment Variables from your Backend `.env`.
-8. Click **Deploy**.
-
----
-
-## 3. Deploying Frontend (Vercel / Netlify)
-
-1. Go to **Vercel.com** (or Netlify).
-2. Create a **New Project**.
-3. Import your GitHub repository.
-4. Set the **Framework Preset** to `Vite`.
-5. Ensure the **Root Directory** is set to `frontend`.
-6. Add the `VITE_API_URL` environment variable pointing to your deployed backend.
-7. Click **Deploy**.
-
----
-
-## 4. Testing Steps
-
-1. **User Flow**:
-   - Register a new user.
-   - Go to the Dashboard and "Request a Project".
-   - Check the email inbox (if SMTP configured) for the booking confirmation.
-   - Once Admin approves the project (status: in_progress), test the "Pay Now" feature.
-   - Try a manual payment (UPI/Bank Transfer) and upload a mock screenshot.
-   - Try the Razorpay flow.
-
-2. **Admin Flow**:
-   - Login as Admin.
-   - Go to the Admin Dashboard -> Projects tab.
-   - Accept the user's booking (change status from pending to planning/in_progress).
-   - Go to Payments tab. View the uploaded screenshot for the manual payment.
-   - Click the green checkmark to confirm the payment.
-   - Verify the user receives a confirmation email.
-   - Go to Projects tab, click "Bill", add materials/cost, and generate the bill.
-
-3. **PDF Generation**:
-   - As a User, go to your dashboard, scroll down to "Bills & Invoices".
-   - Click "Download PDF" to verify `pdfkit` generates the invoice dynamically.
+**Both Vercel and Render will automatically detect the changes and update your live website instantly!** No manual work required.
